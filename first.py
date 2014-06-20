@@ -6,7 +6,8 @@ import pdb
 
 import time
 import datetime
-import pyfirmata
+#import pyfirmata
+import pyfirmata_fake as pyfirmata
 # Démarrer la connection avec Arduino UNO
 #  USB: /dev/ttyUSB0 ou /dev/ttyACM0
 #  UART: /dev/ttyAMA0
