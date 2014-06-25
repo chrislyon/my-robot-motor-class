@@ -2,7 +2,6 @@
 # -*- coding: latin-1 -*-
 
 import sys, traceback
-import pdb
 
 import time
 import datetime
@@ -11,6 +10,8 @@ import pyfirmata_fake as pyfirmata
 # Démarrer la connection avec Arduino UNO
 #  USB: /dev/ttyUSB0 ou /dev/ttyACM0
 #  UART: /dev/ttyAMA0
+
+import pdb
 
 def log(msg):
     a = datetime.datetime.now()
@@ -24,9 +25,15 @@ def print_error(msg):
     print '-'*60
     sys.exit(1)
 
+## -----------------
+## La classe Robot
+## -----------------
+
 class Robot(object):
 
     DEF_SPEED = 50
+    EN_AVANT = 0
+    EN_ARRIERE = 1
 
     def __init__(self, name):
         log("Creation du Robot : %s " % name)
@@ -36,28 +43,28 @@ class Robot(object):
         self.moteur_droit  = None
         self.direction = None
         self.vitesse = 0
-        self.online = False
+        self.isOnline = False
 
     def offline(self):
         log("Robot : %s : Offline" % self.name )
         self.board.exit()
 
     def online(self):
-        self.online = True
+        self.isOnline = True
         if not self.moteur_droit:
             log("Robot : %s : Moteur Droit inexistant")
-            self.online = False
+            self.isOnline = False
         if not self.moteur_gauche:
             log("Robot : %s : Moteur gauche inexistant")
-            self.online = False
-        if self.online:
+            self.isOnline = False
+        if self.isOnline:
             log("Robot : %s : Online" % self.name )
 
     def set_board(self):
         log("Init Robot : board")
         try:
             self.board = pyfirmata.Arduino('/dev/ttyACM0')
-            self.online = True
+            self.isOnline = True
         except:
             print_error("Pb init board")
 
@@ -74,10 +81,19 @@ class Robot(object):
             log("Set Board First")
 
     def stop(self):
-        pass
+        if self.isOnline:
+            self.moteur_droit.stop()
+            self.moteur_gauche.stop()
+        else:
+            log("Robot : %s is offline" % self.name)
 
     def avance(self, vitesse=DEF_SPEED):
-        pass
+        ## Les 2 moteurs même vitesse
+        if self.isOnline:
+            self.moteur_droit.run(vitesse, Robot.EN_AVANT)
+            self.moteur_gauche.run(vitesse, Robot.EN_AVANT)
+        else:
+            log("Robot : %s is offline" % self.name)
 
     def recule(self, vitesse=DEF_SPEED):
         pass
@@ -137,13 +153,17 @@ log( "Debut" )
 
 ## Creation du robot
 
+log( " Creation du robot ")
 R1 = Robot("R1")
 R1.set_board()
 R1.set_Moteur_Droit(pin_sens=12, pin_vitesse=3)
 R1.set_Moteur_Gauche(pin_sens=13,pin_vitesse=11)
 
 print R1
-
+R1.online()
+R1.recule()
+R1.avance()
+R1.stop()
 R1.offline()
 
 log("Fin")

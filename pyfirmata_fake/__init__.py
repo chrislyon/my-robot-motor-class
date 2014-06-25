@@ -1,10 +1,11 @@
 
 class Pin(object):
     def __init__(self, *args, **kwargs):
-        args = list(args)
+        self.args = list(args)
 
     def write(self, data):
-        print "WRITE %s" % data
+        print "WRITE %s" % data,
+        print self.args
 
 class Arduino(object):
     """
