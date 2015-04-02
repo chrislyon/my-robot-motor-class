@@ -1,0 +1,1 @@
+raw class for robot and motor
